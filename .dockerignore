@@ -1,0 +1,50 @@
+# Secrets and env files
+.env
+.env.*
+secrets
+*.pem
+*.key
+
+# Version control, environments, caches
+.git
+.gitignore
+.venv
+.python-version
+.pytest_cache
+.ruff_cache
+.mypy_cache
+# "**/" because Docker matches plain patterns at the build root only
+**/__pycache__
+**/*.pyc
+**/*.log
+tmp
+
+# Private local notes
+**/*.local.md
+
+# AI assistant files
+CLAUDE.md
+CLAUDE.local.md
+AGENTS.md
+PROGRESS.md
+GEMINI.md
+.claude
+.cursor
+.cursorrules
+.windsurf*
+.aider*
+.continue
+.github
+
+# Editors
+.idea
+.vscode
+
+# Not needed at runtime
+tests
+# app/domain/schema_text.py reads db/schema_pg.sql at runtime, so only that file stays
+db/*
+!db/schema_pg.sql
+# Leading slash: only the root docs. app/prompts/*.md and app/domain/glossary.md must stay.
+/*.md
+schema.sql

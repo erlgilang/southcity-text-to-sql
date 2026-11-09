@@ -1,0 +1,24 @@
+[theme]
+base = "light"
+primaryColor = "#1F5F5B"
+backgroundColor = "#F6F4EF"
+secondaryBackgroundColor = "#ECE9E1"
+textColor = "#23201C"
+# Streamlit's built-in sans serif is Source Sans, so no font file is fetched from outside
+font = "sans serif"
+
+[client]
+toolbarMode = "minimal"
+
+[server]
+headless = true
+address = "0.0.0.0"
+port = 8501
+# Behind a reverse proxy the browser's Origin differs from the address Streamlit sees,
+# and CORS or XSRF checks then reject the websocket. Streamlit requires both to be off together.
+# This is safe here because the app has no uploads and no login cookie to protect.
+enableCORS = false
+enableXsrfProtection = false
+
+[browser]
+gatherUsageStats = false

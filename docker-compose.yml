@@ -1,0 +1,43 @@
+# No ports on purpose: a reverse proxy routes by domain.
+# Only the ui service is exposed to it (container port 8501).
+services:
+  api:
+    build: .
+    # One process only: sessions live in memory, so more workers would not share them.
+    command: uvicorn app.api.main:create_app --factory --host 0.0.0.0 --port 8000
+    environment:
+      # A .env next to this file is not passed to the container by itself, so each variable is
+      # listed here. ":?" stops with a message when a secret is missing.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:?Set ANTHROPIC_API_KEY in the Environment tab}
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL in the Environment tab}
+      AUTH_DATABASE_URL: ${AUTH_DATABASE_URL:?Set AUTH_DATABASE_URL in the Environment tab}
+      LLM_MODEL: ${LLM_MODEL:-claude-sonnet-4-6}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      APP_ENV: ${APP_ENV:-production}
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+
+  ui:
+    build: .
+    command: streamlit run ui/streamlit_app.py
+    environment:
+      API_BASE_URL: ${API_BASE_URL:-http://api:8000}
+    expose:
+      - "8501"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8501/_stcore/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped

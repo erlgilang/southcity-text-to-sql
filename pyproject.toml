@@ -1,0 +1,53 @@
+[project]
+name = "southcity-text-to-sql"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.162.2",
+    "httpx>=0.28.1",
+    "langchain-anthropic>=1.7.10",
+    "langchain-core>=1.7.6",
+    "langgraph>=1.2.20",
+    "psycopg[binary]>=3.3.8",
+    "pydantic-settings>=2.16.2",
+    "pyyaml>=6.0.3",
+    "sqlalchemy>=2.1.8",
+    "sqlglot>=30.30.0",
+    "streamlit>=1.67.0",
+    "tzdata>=2026.6",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+    "ruff>=0.17.4",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E", "F", "W",   # pycodestyle and pyflakes basics
+    "I",             # import order
+    "B",             # likely bugs
+    "BLE",           # blind except
+    "PLC0415",       # import inside a function
+    "UP",            # outdated syntax
+    "SIM",           # needless complexity
+    "RUF",           # ruff-specific checks
+    "ERA",           # commented-out code
+    "T20",           # leftover print()
+]
+
+[tool.pytest.ini_options]
+# "ui" is on the path because Streamlit puts the script folder there, so ui code imports itself flat
+pythonpath = [".", "ui"]
+# llm and db tests call external services, run them with: pytest -m "llm or db"
+addopts = '-m "not llm and not db"'
+markers = [
+    "llm: calls the Anthropic API",
+    "db: connects to the Supabase database",
+]

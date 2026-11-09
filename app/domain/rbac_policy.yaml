@@ -1,0 +1,66 @@
+# Names are lowercase because Postgres folds unquoted identifiers.
+
+tables:
+  units: [unitid, unitnumber, tower, unittype, floor, sga_area, nett_area, status]
+  sales_contracts:
+    - contractid
+    - contractnumber
+    - unitid
+    - customername
+    - customernik
+    - salesagentid
+    - bookingdate
+    - baseprice
+    - vat_amount
+    - totalprice
+    - paymentscheme
+    - contractstatus
+  payment_schedules:
+    - scheduleid
+    - contractid
+    - installmentno
+    - duedate
+    - billingamount
+    - billingtype
+    - status
+  payments_received:
+    - paymentid
+    - scheduleid
+    - contractid
+    - paymentdate
+    - paidamount
+    - paymentmethod
+    - receiptnumber
+    - bankreferenceno
+  late_fee_penalties:
+    - penaltyid
+    - scheduleid
+    - contractid
+    - calculationdate
+    - baseoverdueamount
+    - daysoverdue
+    - dailyratepermil
+    - penaltyamount
+    - waiveramount
+    - paidpenalty
+    - penaltystatus
+
+# Exists in the database but is never visible or queryable through chat.
+blocked_tables: [system_users]
+
+# Row isolation for roles with agent_scoped: true. The agent id comes from the server session.
+agent_scope:
+  direct: {sales_contracts: salesagentid}
+  via_contract: [payment_schedules, payments_received, late_fee_penalties]
+
+roles:
+  Sales:
+    tables: [units, sales_contracts, payment_schedules, payments_received, late_fee_penalties]
+    agent_scoped: true
+    hidden_columns: [customernik, paymentmethod, bankreferenceno]
+  Finance: &full_access
+    tables: [units, sales_contracts, payment_schedules, payments_received, late_fee_penalties]
+    agent_scoped: false
+    hidden_columns: []
+  Auditor: *full_access
+  SuperAdmin: *full_access
